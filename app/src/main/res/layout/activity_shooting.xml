@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <cn.com.zt.camera.view.PreviewLayout
+        android:id="@+id/previewLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/buttonLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/takePicture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="拍照" />
+
+        <Button
+            android:id="@+id/startRecord"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="开始录制" />
+
+        <Button
+            android:id="@+id/switchCamera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="切换摄像头" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/flashAuto"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="flash自动" />
+
+            <Button
+                android:id="@+id/flashOn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:text="flash打开" />
+
+            <Button
+                android:id="@+id/flashOff"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="flash关闭" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

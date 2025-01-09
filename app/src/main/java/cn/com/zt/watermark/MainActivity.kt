@@ -5,12 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import cn.com.zt.watermark.databinding.ActivityMainBinding
 import com.permissionx.guolindev.PermissionX
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : FragmentActivity() {
     lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

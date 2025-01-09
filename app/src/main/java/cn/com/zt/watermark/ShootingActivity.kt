@@ -4,11 +4,9 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import cn.com.zt.camera.constant.CameraConstant
 import cn.com.zt.camera.controller.CameraControllerImpl
 import cn.com.zt.camera.listener.ImageSavedCallback
@@ -19,7 +17,7 @@ import cn.com.zt.camera.view.WatermarkPosition
 import cn.com.zt.watermark.databinding.ActivityShootingBinding
 import java.io.File
 
-class ShootingActivity : AppCompatActivity() {
+class ShootingActivity : FragmentActivity() {
     lateinit var binding: ActivityShootingBinding
     private val controller = CameraControllerImpl()
 

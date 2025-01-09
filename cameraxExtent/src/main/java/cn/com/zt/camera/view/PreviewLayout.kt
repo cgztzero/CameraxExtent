@@ -471,7 +471,6 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
             object : OnVideoSavedCallback {
                 override fun onVideoSaved(output: OutputFileResults) {
                     val savedUri = output.savedUri ?: Uri.fromFile(videoFile)
-                    Log.e("ztzt", "onVideoSaved：${savedUri.path}")
                     if (isVideoNeedWatermark()) {
                         addWatermarkOnVideo(savedUri, callBack)
                     } else {
@@ -482,7 +481,6 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
                 }
 
                 override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
-                    Log.e("ztzt", "onError：${message}")
                     runOnUiThread {
                         callBack.onError(videoCaptureError, message, cause)
                     }
@@ -523,7 +521,6 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
                 }
 
                 override fun onFinish() {
-                    Log.e("zt", "计时器到时")
                     stopRecord()
                 }
             },

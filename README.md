@@ -1,1 +1,1 @@
-CameraxX extent
+CameraxXExtent项目是基于Google CameraX二次封装的开源库，包含了拍照，录视频，添加水印和扫描二维码功能。

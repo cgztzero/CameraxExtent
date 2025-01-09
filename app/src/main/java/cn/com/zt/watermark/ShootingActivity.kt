@@ -25,9 +25,10 @@ class ShootingActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityShootingBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
-
-        binding.previewLayout.startPreview()
         binding.previewLayout.bindToLifecycle(this)
+        controller.bindCameraPreview(binding.previewLayout)
+
+        controller.startPreview()
         val option = FileOutputOptions.Companion.FileOutputOptionsBuilder()
             .setImageOutputDirectory(applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)?.absolutePath + "/image/")
             .createImageName {
@@ -53,8 +54,6 @@ class ShootingActivity : FragmentActivity() {
             .setSaveWatermarkTofile(true)
             .build()
         binding.previewLayout.setWatermarkOptions(watermarkOptions)
-
-        controller.bindCameraPreview(binding.previewLayout)
 
         binding.takePicture.setOnClickListener {
             controller.takePicture(

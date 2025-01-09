@@ -64,5 +64,4 @@
                 android:text="flash关闭" />
         </LinearLayout>
     </LinearLayout>
-
 </RelativeLayout>

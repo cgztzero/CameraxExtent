@@ -11,7 +11,6 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
@@ -26,8 +25,10 @@ import androidx.camera.view.video.OnVideoSavedCallback
 import androidx.camera.view.video.OutputFileOptions
 import androidx.camera.view.video.OutputFileResults
 import androidx.lifecycle.LifecycleOwner
+import cn.com.zt.camera.analysis.CodeAnalyser
 import cn.com.zt.camera.constant.CameraConstant
 import cn.com.zt.camera.constant.CameraFlashMode
+import cn.com.zt.camera.listener.CodeAnalysisCallback
 import cn.com.zt.camera.listener.ImageSavedCallback
 import cn.com.zt.camera.listener.VideoSavedCallback
 import cn.com.zt.camera.until.BitmapUtil
@@ -43,7 +44,6 @@ import java.util.concurrent.Executors
 
 
 class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context, attrs) {
-
     private var mPreviewView: PreviewView
     private lateinit var lifecycleCameraController: LifecycleCameraController
     private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -66,15 +66,24 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         initController()
     }
 
+    /**
+     * set options of image and video file
+     */
     fun setFileOutputOptions(options: FileOutputOptions) {
         fileOutputOptions = options
     }
 
+    /**
+     * set options of watermark file
+     */
     fun setWatermarkOptions(options: WatermarkOptions) {
         watermarkOption = options
         checkWatermark()
     }
 
+    /**
+     * watermark initialization
+     */
     private fun checkWatermark() {
         if (watermarkOption == null) {
             return
@@ -94,9 +103,11 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
 
             addView(watermark, createWatermarkLayoutParams(options))
         }
-
     }
 
+    /**
+     * determine whether to add a watermark to the image
+     */
     private fun isImageNeedWatermark(): Boolean {
         if (watermarkOption == null || watermarkOption!!.isOnlyVideoAddWatermark()) {
             return false
@@ -104,6 +115,9 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         return true
     }
 
+    /**
+     * determine whether to add a watermark to the video
+     */
     private fun isVideoNeedWatermark(): Boolean {
         if (watermarkOption == null || watermarkOption!!.isOnlyImageAddWatermark()) {
             return false
@@ -111,6 +125,9 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         return true
     }
 
+    /**
+     * create the bitmap of watermark
+     */
     private fun createWatermarkBitmap(): Bitmap {
         val options = watermarkOption!!
         val watermarkBitmap: Bitmap
@@ -130,6 +147,10 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         return watermarkBitmap
     }
 
+    /**
+     * add watermark on image
+     * @param originUri the origin image file
+     */
     private fun addWatermarkOnImage(originUri: Uri, callBack: ImageSavedCallback) {
         if (watermarkOption == null) {
             callBack.onError("image uri is null", -1)
@@ -217,6 +238,9 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         }
     }
 
+    /**
+     * create the watermark file,because we need use FFmpeg command
+     */
     private fun createWatermarkFile(watermarkBitmap: Bitmap, callBack: VideoSavedCallback): File? {
         val watermarkParentFile = File(defaultImageOutputDirectory)
         if (!watermarkParentFile.exists()) {
@@ -245,6 +269,9 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         return watermarkImageFile
     }
 
+    /**
+     * add watermark on a video
+     */
     private fun addWatermarkOnVideo(originUri: Uri, callBack: VideoSavedCallback) {
         if (watermarkOption == null || watermarkOption?.getWatermarkPosition() == null) {
             callBack.onError(-1, "video watermarkOption or WatermarkPosition is null", null)
@@ -299,6 +326,9 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         executeCommand(sb.toString(), originUri, resultVideoFile, callBack)
     }
 
+    /**
+     * execute FFmpeg command for adding watermark on the video
+     */
     private fun executeCommand(command: String, originUri: Uri, resultFile: File, callBack: VideoSavedCallback) {
         val commands: Array<String> = command.split(" ".toRegex()).toTypedArray()
         RxFFmpegInvoke.getInstance()
@@ -325,6 +355,9 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
     }
 
 
+    /**
+     * We need add a watermark view in the PreviewLayout
+     */
     @SuppressLint("RtlHardcoded")
     private fun createWatermarkLayoutParams(options: WatermarkOptions): LayoutParams {
         val layoutParams =
@@ -357,9 +390,27 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         return layoutParams
     }
 
-    fun startPreview() {
+
+    internal fun startPreview() {
         mPreviewView.controller = lifecycleCameraController
     }
+
+    /**
+     * start scanning QRCode or Barcode
+     */
+    internal fun startScan(callBack: CodeAnalysisCallback) {
+        post {
+            lifecycleCameraController.setImageAnalysisAnalyzer(
+                cameraExecutor,
+                CodeAnalyser(callBack, width, height)
+            )
+        }
+    }
+
+    internal fun stopScan() {
+        lifecycleCameraController.clearImageAnalysisAnalyzer()
+    }
+
 
     private fun initController() {
         lifecycleCameraController = LifecycleCameraController(context)

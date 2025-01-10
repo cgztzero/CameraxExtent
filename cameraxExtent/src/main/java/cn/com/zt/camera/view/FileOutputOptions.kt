@@ -5,7 +5,7 @@ class FileOutputOptions private constructor(
     private var videoOutputDirectory: String? = null,
     private var createImageName: (() -> String)? = null,
     private var createVideoName: (() -> String)? = null,
-    private var videoMaxDuration: Long = 3 * 1000,
+    private var videoMaxDuration: Long = 10 * 1000,
 ) {
 
     fun getVideoMaxDuration(): Long {

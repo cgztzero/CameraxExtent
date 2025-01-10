@@ -16,7 +16,7 @@ class CameraControllerImpl : ICameraController {
 
     override fun bindCameraPreview(view: PreviewLayout) {
         if (cameraView != null) {
-            throw Exception("ICameraController only bind a unique CameraView")
+            throw Exception("ICameraController only bind an unique CameraView")
         }
         cameraView = view
     }
@@ -59,6 +59,11 @@ class CameraControllerImpl : ICameraController {
     override fun startPreview() {
         checkCameraView()
         cameraView!!.startPreview()
+    }
+
+    override fun enableTorch(enable: Boolean) {
+        checkCameraView()
+        cameraView!!.enableTorch(enable)
     }
 
     private fun checkCameraView() {

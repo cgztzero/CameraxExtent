@@ -27,4 +27,6 @@ interface ICameraController {
     fun stopScan()
 
     fun startPreview()
+
+    fun enableTorch(enable: Boolean)
 }

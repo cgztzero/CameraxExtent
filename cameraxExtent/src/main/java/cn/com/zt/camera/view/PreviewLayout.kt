@@ -95,12 +95,13 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         post {
             watermark = if (options.getWatermarkView() != null) {
                 options.getWatermarkView()!!
-            } else {
+            } else if (options.getWatermarkBitmap() != null) {
                 val tempView = ImageView(context)
                 tempView.setImageBitmap(options.getWatermarkBitmap()!!)
                 tempView
+            } else {
+                throw Exception("WatermarkOption must set a watermark view or watermark bitmap")
             }
-
             addView(watermark, createWatermarkLayoutParams(options))
         }
     }
@@ -134,7 +135,7 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         if (options.getWatermarkBitmap() != null) {
             watermarkBitmap = options.getWatermarkBitmap()!!
         } else {
-            val view = options.getWatermarkView()!!
+            val view = watermark!!
             watermarkBitmap = Bitmap.createBitmap(
                 view.width,
                 view.height,
@@ -158,16 +159,19 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         }
         val options = watermarkOption!!
         val position = options.getWatermarkPosition()!!
-        val watermarkBitmap = createWatermarkBitmap()
 
         val rotationInDegrees: Int = BitmapUtil.getBitmapRotation(originUri)
         var originBitmap = BitmapFactory.decodeFile(originUri.path)
         originBitmap = BitmapUtil.rotateBitmap(originBitmap, rotationInDegrees)
 
+        var watermarkBitmap = createWatermarkBitmap()
+
         val imageWidth = originBitmap.width
         val imageHeight = originBitmap.height
-        val watermarkWidth = watermarkBitmap.width
-        val watermarkHeight = watermarkBitmap.height
+        val watermarkWidth = watermarkBitmap.width * (imageWidth / width)
+        val watermarkHeight = watermarkBitmap.height * (imageHeight / height)
+        watermarkBitmap = Bitmap.createScaledBitmap(watermarkBitmap, watermarkWidth, watermarkHeight, true)
+
         var x = 0f
         var y = 0f
 
@@ -424,7 +428,6 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
     internal fun takePicture(callBack: ImageSavedCallback) {
         val photoFile = createPhotoFile()
         val metadata = ImageCapture.Metadata().apply {
-            //水平翻转
             isReversedHorizontal = lensFacing == CameraConstant.LENS_FACING_FRONT
         }
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
@@ -564,7 +567,7 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
 
     private fun initTimer() {
         recordingTimer = RecordingTimer(
-            totalTimeInMillis = fileOutputOptions?.getVideoMaxDuration() ?: (3 * 1000),
+            totalTimeInMillis = fileOutputOptions?.getVideoMaxDuration() ?: (10 * 1000),
             countDownInterval = 1000,
             object : TimerCallBack {
                 override fun onTick(millisUntilFinished: Long) {
@@ -590,6 +593,12 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
     internal fun setFlashMode(@CameraFlashMode mode: Int) {
         if (lifecycleCameraController.imageCaptureFlashMode != mode) {
             lifecycleCameraController.imageCaptureFlashMode = mode
+        }
+    }
+
+    internal fun enableTorch(enable: Boolean) {
+        if (lifecycleCameraController.cameraInfo?.hasFlashUnit() == true) {
+            lifecycleCameraController.enableTorch(enable)
         }
     }
 }

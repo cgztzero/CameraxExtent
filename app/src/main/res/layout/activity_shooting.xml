@@ -21,19 +21,19 @@
             android:id="@+id/takePicture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="拍照" />
+            android:text="take picture" />
 
         <Button
             android:id="@+id/startRecord"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="开始录制" />
+            android:text="start recording" />
 
         <Button
             android:id="@+id/switchCamera"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="切换摄像头" />
+            android:text="switch Camera" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,7 +45,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="flash自动" />
+                android:textSize="9sp"
+                android:text="flash  auto" />
 
             <Button
                 android:id="@+id/flashOn"
@@ -54,14 +55,16 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_weight="1"
-                android:text="flash打开" />
+                android:textSize="9dp"
+                android:text="flash  always" />
 
             <Button
                 android:id="@+id/flashOff"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="flash关闭" />
+                android:textSize="9dp"
+                android:text="flash  close" />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

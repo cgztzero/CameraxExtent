@@ -50,9 +50,10 @@ class ShootingActivity : FragmentActivity() {
         val watermarkOptions = WatermarkOptions.Companion.WatermarkOptionsBuilder()
             .setWatermarkView(watermark)
             .setPreviewShowWaterMark(true)
-            .setWatermarkPosition(WatermarkPosition(CameraConstant.WATER_POSITION_BOTTOM_RIGHT, 150f, 200f))
+            .setWatermarkPosition(WatermarkPosition(CameraConstant.WATER_POSITION_CENTER, 150f, 200f))
             .setSaveWatermarkTofile(true)
             .build()
+        //add watermark
         binding.previewLayout.setWatermarkOptions(watermarkOptions)
 
         binding.takePicture.setOnClickListener {
@@ -66,18 +67,19 @@ class ShootingActivity : FragmentActivity() {
 
                     }
                 },
+//                tempOption = watermarkOptions //add watermark just in time
             )
         }
 
         binding.startRecord.setOnClickListener {
             if (controller.isRecording()) {
                 controller.stopRecord()
-                binding.startRecord.text = "开始录制"
+                binding.startRecord.text = "start recording"
             } else {
                 controller.startRecord(
                     object : VideoSavedCallback {
                         override fun onVideoSaved(uri: Uri, watermarkFile: File?) {
-                            binding.startRecord.text = "开始录制"
+                            binding.startRecord.text = "start recording"
                         }
 
                         override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
@@ -89,8 +91,9 @@ class ShootingActivity : FragmentActivity() {
                         }
 
                     },
+                    tempOption = watermarkOptions
                 )
-                binding.startRecord.text = "停止录制"
+                binding.startRecord.text = "stop recording"
             }
         }
 

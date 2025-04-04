@@ -129,21 +129,25 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
     /**
      * create the bitmap of watermark
      */
-    private fun createWatermarkBitmap(): Bitmap {
-        val options = watermarkOption!!
+    private fun createWatermarkBitmap(options: WatermarkOptions): Bitmap {
+//        val options = watermarkOption!!
         val watermarkBitmap: Bitmap
         if (options.getWatermarkBitmap() != null) {
             watermarkBitmap = options.getWatermarkBitmap()!!
         } else {
-            val view = watermark!!
-            watermarkBitmap = Bitmap.createBitmap(
-                view.width,
-                view.height,
-                Bitmap.Config.ARGB_8888
-            )
-            val canvas = Canvas(watermarkBitmap)
-            canvas.drawColor(Color.TRANSPARENT)
-            view.draw(canvas)
+            if (watermark != null) {
+                val view = watermark!!
+                watermarkBitmap = Bitmap.createBitmap(
+                    view.width,
+                    view.height,
+                    Bitmap.Config.ARGB_8888
+                )
+                val canvas = Canvas(watermarkBitmap)
+                canvas.drawColor(Color.TRANSPARENT)
+                view.draw(canvas)
+            } else {
+                watermarkBitmap = BitmapUtil.createBitmapFromView(options.getWatermarkView()!!)
+            }
         }
         return watermarkBitmap
     }
@@ -152,19 +156,27 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
      * add watermark on image
      * @param originUri the origin image file
      */
-    private fun addWatermarkOnImage(originUri: Uri, callBack: ImageSavedCallback) {
-        if (watermarkOption == null) {
-            callBack.onError("image uri is null", -1)
+    private fun addWatermarkOnImage(
+        originUri: Uri,
+        callBack: ImageSavedCallback,
+        tempOption: WatermarkOptions? = null,
+    ) {
+        if (watermarkOption == null && tempOption == null) {
+            callBack.onError("watermarkOption is null", -1)
             return
         }
-        val options = watermarkOption!!
-        val position = options.getWatermarkPosition()!!
+
+        val options = if (watermarkOption != null) {
+            watermarkOption!!
+        } else {
+            tempOption!!
+        }
 
         val rotationInDegrees: Int = BitmapUtil.getBitmapRotation(originUri)
         var originBitmap = BitmapFactory.decodeFile(originUri.path)
         originBitmap = BitmapUtil.rotateBitmap(originBitmap, rotationInDegrees)
 
-        var watermarkBitmap = createWatermarkBitmap()
+        var watermarkBitmap = createWatermarkBitmap(options)
 
         val imageWidth = originBitmap.width
         val imageHeight = originBitmap.height
@@ -174,7 +186,7 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
 
         var x = 0f
         var y = 0f
-
+        val position = options.getWatermarkPosition()!!
         if (position.isCenter()) {
             x = ((imageWidth - watermarkWidth) / 2).toFloat()
             y = ((imageHeight - watermarkHeight) / 2).toFloat()
@@ -276,15 +288,25 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
     /**
      * add watermark on a video
      */
-    private fun addWatermarkOnVideo(originUri: Uri, callBack: VideoSavedCallback) {
-        if (watermarkOption == null || watermarkOption?.getWatermarkPosition() == null) {
-            callBack.onError(-1, "video watermarkOption or WatermarkPosition is null", null)
+    private fun addWatermarkOnVideo(
+        originUri: Uri,
+        callBack: VideoSavedCallback,
+        tempOption: WatermarkOptions? = null
+    ) {
+        if (watermarkOption == null && tempOption == null) {
+            callBack.onError(-1, "video watermarkOption is null", null)
             return
         }
 
-        val options = watermarkOption!!
+        val options = if (watermarkOption != null) {
+            watermarkOption!!
+        } else {
+            tempOption!!
+        }
+
+
         val position = options.getWatermarkPosition()!!
-        val watermarkBitmap = createWatermarkBitmap()
+        val watermarkBitmap = createWatermarkBitmap(options)
 
         val videoWatermarkFile = createWatermarkFile(watermarkBitmap, callBack) ?: return
 
@@ -425,7 +447,7 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
         lifecycleCameraController.bindToLifecycle(lifecycleOwner)
     }
 
-    internal fun takePicture(callBack: ImageSavedCallback) {
+    internal fun takePicture(callBack: ImageSavedCallback, tempOption: WatermarkOptions? = null) {
         val photoFile = createPhotoFile()
         val metadata = ImageCapture.Metadata().apply {
             isReversedHorizontal = lensFacing == CameraConstant.LENS_FACING_FRONT
@@ -447,8 +469,8 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-                    if (isImageNeedWatermark()) {
-                        addWatermarkOnImage(savedUri, callBack)
+                    if (isImageNeedWatermark() || tempOption != null) {
+                        addWatermarkOnImage(savedUri, callBack, tempOption)
                     } else {
                         runOnUiThread {
                             callBack.onImageSaved(savedUri)
@@ -511,7 +533,7 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
     }
 
     @SuppressLint("UnsafeOptInUsageError")
-    internal fun startRecord(callBack: VideoSavedCallback) {
+    internal fun startRecord(callBack: VideoSavedCallback, tempOption: WatermarkOptions? = null) {
         if (isRecording()) {
             return
         }
@@ -525,8 +547,8 @@ class PreviewLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
             object : OnVideoSavedCallback {
                 override fun onVideoSaved(output: OutputFileResults) {
                     val savedUri = output.savedUri ?: Uri.fromFile(videoFile)
-                    if (isVideoNeedWatermark()) {
-                        addWatermarkOnVideo(savedUri, callBack)
+                    if (isVideoNeedWatermark() || tempOption != null) {
+                        addWatermarkOnVideo(savedUri, callBack, tempOption)
                     } else {
                         runOnUiThread {
                             callBack.onVideoSaved(savedUri)

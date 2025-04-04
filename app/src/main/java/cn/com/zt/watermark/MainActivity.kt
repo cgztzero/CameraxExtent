@@ -18,15 +18,24 @@ class MainActivity : FragmentActivity() {
         setContentView(binding.root)
 
         binding.button.setOnClickListener {
-            checkPermission()
+            checkPermission(1)
+        }
+
+        binding.scanButton.setOnClickListener {
+            checkPermission(2)
         }
     }
 
-    private fun intentTo() {
-        startActivity(Intent(this, ShootingActivity::class.java))
+    private fun intentTo(type: Int) {
+        if (type == 1) {
+            startActivity(Intent(this, ShootingActivity::class.java))
+        } else if (type == 2) {
+            startActivity(Intent(this, ScanActivity::class.java))
+        }
+
     }
 
-    private fun checkPermission() {
+    private fun checkPermission(type: Int) {
         PermissionX.init(this)
             .permissions(
                 Manifest.permission.CAMERA,
@@ -35,10 +44,10 @@ class MainActivity : FragmentActivity() {
             .request { allGranted, _, deniedList ->
                 if (allGranted) {
                     //所有权限已经授权
-                    Toast.makeText(this, "授权成功", Toast.LENGTH_SHORT).show()
-                    intentTo()
+                    Toast.makeText(this, "grant success", Toast.LENGTH_SHORT).show()
+                    intentTo(type)
                 } else {
-                    Toast.makeText(this, "拒绝权限: $deniedList", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "refuse: $deniedList", Toast.LENGTH_LONG).show()
                 }
             }
     }

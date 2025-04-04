@@ -5,13 +5,14 @@ import cn.com.zt.camera.listener.CodeAnalysisCallback
 import cn.com.zt.camera.listener.ImageSavedCallback
 import cn.com.zt.camera.listener.VideoSavedCallback
 import cn.com.zt.camera.view.PreviewLayout
+import cn.com.zt.camera.view.WatermarkOptions
 
 class CameraControllerImpl : ICameraController {
     private var cameraView: PreviewLayout? = null
 
-    override fun takePicture(callBack: ImageSavedCallback) {
+    override fun takePicture(callBack: ImageSavedCallback, tempOption: WatermarkOptions?) {
         checkCameraView()
-        cameraView!!.takePicture(callBack)
+        cameraView!!.takePicture(callBack, tempOption)
     }
 
     override fun bindCameraPreview(view: PreviewLayout) {
@@ -26,9 +27,9 @@ class CameraControllerImpl : ICameraController {
         return cameraView!!.switchCamera()
     }
 
-    override fun startRecord(callBack: VideoSavedCallback) {
+    override fun startRecord(callBack: VideoSavedCallback,tempOption: WatermarkOptions?) {
         checkCameraView()
-        cameraView!!.startRecord(callBack)
+        cameraView!!.startRecord(callBack,tempOption)
     }
 
     override fun stopRecord() {
